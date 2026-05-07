@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dead on Court — Murder Mystery Experience</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Special+Elite&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+/* ── RESET & BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:      #1a1610;
+  --paper:    #242018;
+  --card:     #2e2820;
+  --cream:    #f0e6cc;
+  --dim:      #b0a48a;
+  --muted:    #7a6f5a;
+  --red:      #9b2020;
+  --red-hot:  #d44030;
+  --gold:     #c8a84a;
+  --line:     rgba(240,230,204,0.14);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--cream);
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.7;
+  cursor: default;
+  overflow-x: hidden;
+}
+
+/* ── NOISE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* ── TYPOGRAPHY ── */
+h1, h2, h3 { font-family: 'Playfair Display', Georgia, serif; }
+.mono { font-family: 'Special Elite', monospace; }
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 48px;
+  background: linear-gradient(to bottom, rgba(10,8,5,0.98) 0%, transparent 100%);
+  border-bottom: 1px solid var(--line);
+}
+
+.nav-logo {
+  font-family: 'Special Elite', monospace;
+  font-size: 13px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.nav-logo span { color: var(--red-hot); }
+
+.nav-links {
+  display: flex;
+  gap: 40px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: 'Special Elite', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--cream); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 48px 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Vignette */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(10,8,5,0.85) 100%);
+  pointer-events: none;
+}
+
+/* Background lines */
+.hero-lines {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-lines::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px; height: 800px;
+  border: 1px solid rgba(139,26,26,0.08);
+  border-radius: 50%;
+  animation: pulse-ring 6s ease-in-out infinite;
+}
+
+.hero-lines::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px; height: 500px;
+  border: 1px solid rgba(139,26,26,0.05);
+  border-radius: 50%;
+  animation: pulse-ring 6s ease-in-out infinite 1.5s;
+}
+
+@keyframes pulse-ring {
+  0%, 100% { opacity: 0.4; transform: translate(-50%,-50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%,-50%) scale(1.04); }
+}
+
+.hero-eyebrow {
+  font-family: 'Special Elite', monospace;
+  font-size: 11px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 28px;
+  position: relative;
+  z-index: 2;
+  animation: fadeUp 1s ease both 0.2s;
+}
+
+.hero-eyebrow::before,
+.hero-eyebrow::after {
+  content: '—';
+  margin: 0 12px;
+  color: var(--red);
+  opacity: 0.5;
+}
+
+.hero h1 {
+  font-size: clamp(52px, 8vw, 110px);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -2px;
+  position: relative;
+  z-index: 2;
+  animation: fadeUp 1s ease both 0.4s;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: var(--red-hot);
+  display: block;
+}
+
+.hero-sub {
+  font-size: 20px;
+  font-style: italic;
+  color: var(--dim);
+  margin-top: 32px;
+  max-width: 520px;
+  position: relative;
+  z-index: 2;
+  animation: fadeUp 1s ease both 0.6s;
+}
+
+.hero-divider {
+  width: 1px;
+  height: 60px;
+  background: linear-gradient(to bottom, var(--red), transparent);
+  margin: 40px auto;
+  position: relative;
+  z-index: 2;
+  animation: fadeUp 1s ease both 0.8s;
+}
+
+.hero-meta {
+  display: flex;
+  gap: 48px;
+  position: relative;
+  z-index: 2;
+  animation: fadeUp 1s ease both 1s;
+}
+
+.hero-meta-item {
+  text-align: center;
+}
+
+.hero-meta-item .label {
+  font-family: 'Special Elite', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--red);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.hero-meta-item .value {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-style: italic;
+  color: var(--cream);
+}
+
+.hero-cta {
+  margin-top: 52px;
+  position: relative;
+  z-index: 2;
+  animation: fadeUp 1s ease both 1.2s;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── BUTTONS ── */
+.btn-primary {
+  display: inline-block;
+  font-family: 'Special Elite', monospace;
+  font-size: 12px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--cream);
+  background: var(--red);
+  border: none;
+  padding: 18px 48px;
+  cursor: pointer;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  transition: left 0.5s;
+}
+
+.btn-primary:hover { background: var(--red-hot); transform: translateY(-2px); }
+.btn-primary:hover::before { left: 100%; }
+
+.btn-ghost {
+  display: inline-block;
+  font-family: 'Special Elite', monospace;
+  font-size: 12px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--cream);
+  background: transparent;
+  border: 1px solid rgba(232,223,200,0.3);
+  padding: 16px 40px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.3s, color 0.3s;
+}
+
+.btn-ghost:hover { border-color: var(--cream); }
+
+/* ── SECTION BASE ── */
+section {
+  padding: 100px 48px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.section-rule {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 0;
+}
+
+.section-label {
+  font-family: 'Special Elite', monospace;
+  font-size: 10px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+  max-width: 80px;
+}
+
+/* ── ABOUT ── */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+  margin-top: 48px;
+}
+
+.about-grid h2 {
+  font-size: clamp(36px, 4vw, 56px);
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.about-grid h2 em {
+  font-style: italic;
+  color: var(--red-hot);
+}
+
+.about-body {
+  font-size: 18px;
+  color: rgba(240,230,204,0.85);
+  line-height: 1.8;
+}
+
+.about-body p + p { margin-top: 20px; }
+
+/* ── DETAILS STRIP ── */
+.details-strip {
+  background: rgba(139,26,26,0.06);
+  border: 1px solid rgba(139,26,26,0.2);
+  padding: 48px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px;
+  margin: 0 48px;
+  max-width: 1100px;
+  margin: 0 auto 0;
+}
+
+.detail-item { border-left: 2px solid var(--red); padding-left: 20px; }
+
+.detail-item .d-label {
+  font-family: 'Special Elite', monospace;
+  font-size: 9px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.detail-item .d-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  font-style: italic;
+  color: var(--cream);
+  line-height: 1.2;
+}
+
+.detail-item .d-note {
+  font-size: 13px;
+  color: var(--dim);
+  margin-top: 4px;
+}
+
+/* ── WHAT TO EXPECT ── */
+.expect-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin-top: 48px;
+}
+
+.expect-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 40px 32px;
+  position: relative;
+  transition: background 0.3s;
+}
+
+.expect-card:hover { background: rgba(240,230,204,0.07); }
+
+.expect-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 72px;
+  font-weight: 900;
+  color: rgba(155,32,32,0.18);
+  line-height: 1;
+  position: absolute;
+  top: 20px; right: 24px;
+}
+
+.expect-card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--cream);
+}
+
+.expect-card p {
+  font-size: 16px;
+  color: var(--dim);
+  line-height: 1.7;
+}
+
+/* ── BOOKING FORM ── */
+#booking {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 100px 48px;
+}
+
+.form-header {
+  text-align: center;
+  margin-bottom: 56px;
+}
+
+.form-header h2 {
+  font-size: clamp(36px, 4vw, 52px);
+  line-height: 1.1;
+}
+
+.form-header h2 em {
+  font-style: italic;
+  color: var(--red-hot);
+}
+
+.form-header p {
+  margin-top: 16px;
+  color: var(--dim);
+  font-style: italic;
+  font-size: 17px;
+}
+
+.form-group {
+  margin-bottom: 28px;
+}
+
+.form-group label {
+  display: block;
+  font-family: 'Special Elite', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 10px;
+}
+
+.form-group label span {
+  color: var(--red);
+  margin-left: 3px;
+}
+
+.form-control {
+  width: 100%;
+  background: rgba(240,230,204,0.07);
+  border: 1px solid rgba(240,230,204,0.2);
+  color: var(--cream);
+  font-family: 'Crimson Text', serif;
+  font-size: 17px;
+  padding: 14px 18px;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  -webkit-appearance: none;
+}
+
+.form-control::placeholder { color: rgba(176,164,138,0.55); }
+
+.form-control:focus {
+  border-color: var(--red-hot);
+  background: rgba(155,32,32,0.08);
+}
+
+select.form-control {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a7f6a' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-note {
+  font-size: 13px;
+  color: var(--dim);
+  font-style: italic;
+  margin-top: 6px;
+}
+
+.form-divider {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 36px 0;
+}
+
+.form-submit {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.form-submit .btn-primary {
+  width: 100%;
+  font-size: 13px;
+  padding: 20px;
+}
+
+/* ── SUCCESS ── */
+.form-success {
+  display: none;
+  text-align: center;
+  padding: 60px 40px;
+  border: 1px solid rgba(139,26,26,0.3);
+  background: rgba(139,26,26,0.05);
+}
+
+.form-success h3 {
+  font-size: 32px;
+  font-style: italic;
+  color: var(--cream);
+  margin-bottom: 16px;
+}
+
+.form-success p {
+  color: var(--dim);
+  font-style: italic;
+}
+
+.success-icon {
+  font-size: 48px;
+  margin-bottom: 24px;
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--line);
+  padding: 48px;
+  text-align: center;
+}
+
+.footer-logo {
+  font-family: 'Special Elite', monospace;
+  font-size: 11px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 16px;
+}
+
+.footer-tagline {
+  font-style: italic;
+  color: rgba(138,127,106,0.5);
+  font-size: 14px;
+}
+
+/* ── TAKEN SLOTS ── */
+.slot-taken {
+  color: var(--muted) !important;
+  font-style: italic;
+}
+
+.slot-taken::after {
+  content: ' — Taken';
+  color: var(--red);
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.time-unavailable-msg {
+  display: none;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--red-hot);
+  font-style: italic;
+}
+
+/* ── CUSTOM SELECT ── */
+.custom-select {
+  position: relative;
+  width: 100%;
+  user-select: none;
+}
+
+.cs-trigger {
+  width: 100%;
+  background: rgba(240,230,204,0.07);
+  border: 1px solid rgba(240,230,204,0.2);
+  color: var(--cream);
+  font-family: 'Crimson Text', serif;
+  font-size: 17px;
+  padding: 14px 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.cs-trigger:hover,
+.custom-select.open .cs-trigger {
+  border-color: var(--red-hot);
+  background: rgba(155,32,32,0.08);
+}
+
+.cs-trigger span:first-child {
+  color: var(--cream);
+}
+
+.cs-trigger.placeholder span:first-child {
+  color: rgba(176,164,138,0.55);
+}
+
+.cs-arrow {
+  font-size: 12px;
+  color: var(--dim);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.custom-select.open .cs-arrow { transform: rotate(180deg); }
+
+.cs-options {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0; right: 0;
+  background: #1e1a12;
+  border: 1px solid rgba(240,230,204,0.2);
+  border-top: none;
+  z-index: 50;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.custom-select.open .cs-options { display: block; }
+
+.cs-option {
+  padding: 13px 18px;
+  font-family: 'Crimson Text', serif;
+  font-size: 17px;
+  color: var(--cream);
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cs-option:hover:not(.cs-taken) { background: rgba(155,32,32,0.15); }
+
+.cs-option.cs-selected {
+  background: rgba(155,32,32,0.2);
+  color: var(--cream);
+}
+
+.cs-option.cs-taken {
+  color: var(--muted);
+  cursor: not-allowed;
+  font-style: italic;
+}
+
+.cs-taken-badge {
+  font-family: 'Special Elite', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--red);
+  background: rgba(155,32,32,0.15);
+  padding: 2px 8px;
+  border: 1px solid rgba(155,32,32,0.3);
+}
+
+/* ── SCROLL ANIMATIONS ── */
+.reveal {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.hidden-before-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  nav { padding: 18px 24px; }
+  .nav-links { display: none; }
+  .hero { padding: 100px 24px 60px; }
+  .hero-meta { gap: 28px; }
+  section { padding: 60px 24px; }
+  .about-grid { grid-template-columns: 1fr; gap: 40px; }
+  .details-strip { grid-template-columns: 1fr 1fr; padding: 32px 24px; margin: 0 24px; }
+  .expect-grid { grid-template-columns: 1fr; }
+  #booking { padding: 60px 24px; }
+  .form-row { grid-template-columns: 1fr; }
+  footer { padding: 40px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-logo">Dead <span>on</span> Court</div>
+  <ul class="nav-links">
+    <li><a href="#about">The Case</a></li>
+    <li><a href="#details">Details</a></li>
+    <li><a href="#booking">Book Now</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero" style="max-width:100%;padding-left:48px;padding-right:48px">
+  <div class="hero-lines"></div>
+  <div class="hero-eyebrow">A Collaborative Murder Mystery</div>
+  <h1>Dead<em>on Court</em></h1>
+  <p class="hero-sub">A student is dead. The evidence is scattered. The truth is buried — and someone in this room knows exactly where.</p>
+  <div class="hero-divider"></div>
+  <div class="hero-meta">
+    <div class="hero-meta-item">
+      <span class="label">Players</span>
+      <span class="value">3 – 5</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="label">Duration</span>
+      <span class="value">30 – 40 min</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="label">Difficulty</span>
+      <span class="value">Challenging</span>
+    </div>
+  </div>
+  <div class="hero-cta">
+    <a href="#booking" class="btn-primary">Reserve Your Session</a>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ── ABOUT ── -->
+<section id="about">
+  <div class="section-label">The Case</div>
+  <div class="about-grid reveal">
+    <div>
+      <h2>Emily Kingstone<br>is <em>dead.</em></h2>
+    </div>
+    <div class="about-body">
+      <p>Popular. Admired. Ruthless beneath the surface. The basketball team captain was found dead in the Society room — and almost everyone who knew her had a reason to want her gone.</p>
+      <p>You and your team are the investigators. Two rooms. A web of secrets. Physical evidence, digital footprints, and a confession buried somewhere you haven't looked yet.</p>
+      <p>The question isn't just <em>who</em> did it — it's how far the conspiracy goes.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── DETAILS STRIP ── -->
+<div class="details-strip reveal">
+  <div class="detail-item">
+    <span class="d-label">Format</span>
+    <div class="d-val">Hybrid</div>
+    <div class="d-note">Physical + digital evidence</div>
+  </div>
+  <div class="detail-item">
+    <span class="d-label">Spaces</span>
+    <div class="d-val">2 Rooms</div>
+    <div class="d-note">Basketball & Theatre Society</div>
+  </div>
+  <div class="detail-item">
+    <span class="d-label">Group Size</span>
+    <div class="d-val">3 – 5</div>
+    <div class="d-note">Players per session</div>
+  </div>
+  <div class="detail-item">
+    <span class="d-label">Language</span>
+    <div class="d-val">English</div>
+    <div class="d-note">Greek available on request</div>
+  </div>
+</div>
+
+<hr class="section-rule" style="margin-top:100px">
+
+<!-- ── WHAT TO EXPECT ── -->
+<section id="details">
+  <div class="section-label">What to Expect</div>
+  <div class="expect-grid reveal">
+    <div class="expect-card">
+      <div class="expect-num">I</div>
+      <h3>Investigate</h3>
+      <p>Search two physical spaces for clues. Physical objects, hidden items, locked compartments — nothing is placed by accident.</p>
+    </div>
+    <div class="expect-card">
+      <div class="expect-num">II</div>
+      <h3>Decode</h3>
+      <p>Digital devices, Instagram accounts, voice recordings, encrypted folders. The truth lives in the details most people overlook.</p>
+    </div>
+    <div class="expect-card">
+      <div class="expect-num">III</div>
+      <h3>Expose</h3>
+      <p>Three layers of revelation. The surface story is never the real one. Follow the evidence to its darkest conclusion.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ── BOOKING ── -->
+<section id="booking">
+  <div class="form-header reveal">
+    <div class="section-label" style="justify-content:center">Reserve</div>
+    <h2>Book Your<br><em>Investigation</em></h2>
+    <p>Fill in the details below and we'll confirm your session within 24 hours.</p>
+  </div>
+
+  <form id="bookingForm" class="reveal" onsubmit="handleSubmit(event)">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>First Name <span>*</span></label>
+        <input type="text" class="form-control" name="firstName" placeholder="Emily" required>
+      </div>
+      <div class="form-group">
+        <label>Last Name <span>*</span></label>
+        <input type="text" class="form-control" name="lastName" placeholder="Kingstone" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Email Address <span>*</span></label>
+      <input type="email" class="form-control" name="email" placeholder="you@example.com" required>
+      <div class="form-note">Confirmation will be sent to this address.</div>
+    </div>
+
+    <div class="form-group">
+      <label>Phone Number</label>
+      <input type="tel" class="form-control" name="phone" placeholder="+357 99 000 000">
+    </div>
+
+    <hr class="form-divider">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Preferred Date <span>*</span></label>
+        <input type="date" class="form-control" name="date" id="dateInput" required>
+      </div>
+      <div class="form-group">
+        <label>Preferred Time <span>*</span></label>
+        <!-- hidden real input for form submission -->
+        <input type="hidden" name="time" id="timeValue" required>
+        <div class="custom-select" id="timeDropdown">
+          <div class="cs-trigger" id="timeTrigger" onclick="toggleDropdown('time')">
+            <span id="timeLabel">Select a time</span>
+            <span class="cs-arrow">▾</span>
+          </div>
+          <div class="cs-options" id="timeOptions">
+            <div class="cs-option" data-value="10:00 AM">10:00 AM</div>
+            <div class="cs-option" data-value="12:00 PM">12:00 PM</div>
+            <div class="cs-option" data-value="02:00 PM">02:00 PM</div>
+            <div class="cs-option" data-value="04:00 PM">04:00 PM</div>
+            <div class="cs-option" data-value="06:00 PM">06:00 PM</div>
+            <div class="cs-option" data-value="08:00 PM">08:00 PM</div>
+          </div>
+        </div>
+        <div class="time-unavailable-msg" id="timeUnavailableMsg">This slot is already taken. Please choose another time.</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Number of Players <span>*</span></label>
+      <!-- hidden real input for form submission -->
+      <input type="hidden" name="players" id="playersValue" required>
+      <div class="custom-select" id="playersDropdown">
+        <div class="cs-trigger" id="playersTrigger" onclick="toggleDropdown('players')">
+          <span id="playersLabel">Select group size</span>
+          <span class="cs-arrow">▾</span>
+        </div>
+        <div class="cs-options" id="playersOptions">
+          <div class="cs-option" data-value="3 players">3 players</div>
+          <div class="cs-option" data-value="4 players">4 players</div>
+          <div class="cs-option" data-value="5 players">5 players</div>
+        </div>
+      </div>
+      <div class="form-note">Sessions are designed for groups of 3 to 5.</div>
+    </div>
+
+    <div class="form-group">
+      <label>Any notes or questions?</label>
+      <textarea class="form-control" name="message" placeholder="Accessibility needs, special occasions, questions about the experience…"></textarea>
+    </div>
+
+    <div class="form-submit">
+      <button type="submit" class="btn-primary">Submit Booking Request</button>
+      <p style="margin-top:16px;font-size:13px;color:var(--dim);font-style:italic;">We'll confirm within 24 hours.</p>
+    </div>
+
+  </form>
+
+  <div class="form-success" id="formSuccess">
+    <div id="successSending" style="text-align:center;padding:60px 40px;border:1px solid rgba(155,32,32,0.3);background:rgba(155,32,32,0.05)">
+      <div style="font-size:36px;margin-bottom:20px;animation:spin 1s linear infinite;display:inline-block">⏳</div>
+      <h3 style="font-family:'Playfair Display',serif;font-size:28px;font-style:italic;color:var(--cream);margin-bottom:12px">Sending…</h3>
+      <p style="color:var(--dim);font-style:italic">Please wait while we process your request.</p>
+    </div>
+    <div id="successDone" style="display:none;text-align:center;padding:60px 40px;border:1px solid rgba(155,32,32,0.3);background:rgba(155,32,32,0.05)">
+      <div style="font-size:48px;margin-bottom:24px">🕵️</div>
+      <h3 style="font-family:'Playfair Display',serif;font-size:32px;font-style:italic;color:var(--cream);margin-bottom:16px">Request Received</h3>
+      <p style="color:var(--dim);font-style:italic">A confirmation has been sent to your email.<br>We'll be in touch within 24 hours.</p>
+    </div>
+    <div id="successError" style="display:none;text-align:center;padding:60px 40px;border:1px solid rgba(155,32,32,0.5);background:rgba(155,32,32,0.08)">
+      <div style="font-size:48px;margin-bottom:24px">⚠️</div>
+      <h3 style="font-family:'Playfair Display',serif;font-size:28px;font-style:italic;color:var(--red-hot);margin-bottom:16px">Something went wrong</h3>
+      <p style="color:var(--dim);font-style:italic;margin-bottom:24px">We couldn't send the confirmation email.<br>Please contact us directly at <a href="mailto:cutmga498@gmail.com" style="color:var(--cream)">cutmga498@gmail.com</a></p>
+      <button onclick="resetForm()" class="btn-ghost" style="font-size:11px;padding:12px 28px">Try Again</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── ADMIN PANEL ── -->
+<div id="adminPanel" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(10,8,5,0.97);overflow-y:auto;padding:48px">
+  <div style="max-width:700px;margin:0 auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:40px">
+      <div>
+        <div style="font-family:'Special Elite',monospace;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--red);margin-bottom:6px">Admin</div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:32px;font-style:italic">Booking Manager</h2>
+      </div>
+      <button onclick="closeAdmin()" style="background:none;border:1px solid var(--line);color:var(--dim);font-family:'Special Elite',monospace;font-size:10px;letter-spacing:3px;padding:10px 20px;cursor:pointer;text-transform:uppercase">✕ Close</button>
+    </div>
+
+    <div id="adminSlotList"></div>
+
+    <div style="margin-top:40px;padding-top:32px;border-top:1px solid var(--line)">
+      <div style="font-family:'Special Elite',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:16px">Clear all bookings</div>
+      <button onclick="clearAllSlots()" style="background:var(--red);border:none;color:var(--cream);font-family:'Special Elite',monospace;font-size:11px;letter-spacing:3px;padding:14px 32px;cursor:pointer;text-transform:uppercase">Clear Everything</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin login modal -->
+<div id="adminLogin" style="display:none;position:fixed;inset:0;z-index:1001;background:rgba(10,8,5,0.97);display:none;align-items:center;justify-content:center">
+  <div style="background:var(--card);border:1px solid var(--line);padding:48px;max-width:380px;width:100%;text-align:center">
+    <div style="font-family:'Special Elite',monospace;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--red);margin-bottom:12px">Admin Access</div>
+    <h3 style="font-family:'Playfair Display',serif;font-size:26px;font-style:italic;margin-bottom:28px">Enter Password</h3>
+    <input type="password" id="adminPassInput" class="form-control" placeholder="••••••••" style="text-align:center;margin-bottom:16px">
+    <div id="adminPassError" style="display:none;color:var(--red-hot);font-size:13px;font-style:italic;margin-bottom:12px">Incorrect password.</div>
+    <button onclick="checkAdminPass()" class="btn-primary" style="width:100%;padding:16px">Enter</button>
+    <button onclick="document.getElementById('adminLogin').style.display='none'" style="display:block;margin-top:16px;background:none;border:none;color:var(--dim);font-family:'Special Elite',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;text-transform:uppercase;width:100%">Cancel</button>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">Dead on Court &nbsp;·&nbsp; Murder Mystery Experience</div>
+  <div class="footer-tagline">The case won't solve itself.</div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════
+// ── CONFIG — fill these in after Supabase setup ──
+// ═══════════════════════════════════════════════════
+const SUPABASE_URL    = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON   = 'YOUR_SUPABASE_ANON_KEY';
+const ADMIN_PASSWORD  = 'doc2025';
+// ═══════════════════════════════════════════════════
+
+// Init Supabase client
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// In-memory cache of taken slots { "2025-06-01": ["10:00 AM", "02:00 PM"] }
+let bookedCache = {};
+
+// ── SCROLL REVEAL ──
+document.querySelectorAll('.reveal').forEach(el => {
+  new IntersectionObserver(([e], obs) => {
+    if (e.isIntersecting) { el.classList.add('visible'); obs.unobserve(el); }
+  }, { threshold: 0.1 }).observe(el);
+});
+
+// ── MIN DATE ──
+const dateInput = document.getElementById('dateInput');
+if (dateInput) {
+  dateInput.min = new Date().toISOString().split('T')[0];
+  dateInput.addEventListener('change', () => refreshTimeOptions());
+}
+
+// ── SUPABASE HELPERS ──
+async function loadAllBookings() {
+  const { data, error } = await db.from('bookings').select('date, time');
+  if (error) { console.error('Load error:', error); return; }
+  bookedCache = {};
+  data.forEach(({ date, time }) => {
+    if (!bookedCache[date]) bookedCache[date] = [];
+    bookedCache[date].push(time);
+  });
+  refreshTimeOptions();
+}
+
+async function saveBooking(booking) {
+  const { error } = await db.from('bookings').insert([booking]);
+  if (error) throw error;
+  // update local cache
+  if (!bookedCache[booking.date]) bookedCache[booking.date] = [];
+  bookedCache[booking.date].push(booking.time);
+}
+
+async function deleteBooking(date, time) {
+  const { error } = await db.from('bookings').delete()
+    .eq('date', date).eq('time', time);
+  if (error) throw error;
+  if (bookedCache[date]) {
+    bookedCache[date] = bookedCache[date].filter(t => t !== time);
+    if (bookedCache[date].length === 0) delete bookedCache[date];
+  }
+}
+
+async function deleteAllBookings() {
+  const { error } = await db.from('bookings').delete().neq('id', 0);
+  if (error) throw error;
+  bookedCache = {};
+}
+
+function isSlotTaken(date, time) {
+  return bookedCache[date] && bookedCache[date].includes(time);
+}
+
+// ── CUSTOM DROPDOWN ──
+function toggleDropdown(which) {
+  const dd = document.getElementById(which + 'Dropdown');
+  if (!dd) return;
+  const isOpen = dd.classList.contains('open');
+  document.querySelectorAll('.custom-select.open').forEach(d => d.classList.remove('open'));
+  if (!isOpen) dd.classList.add('open');
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.custom-select'))
+    document.querySelectorAll('.custom-select.open').forEach(d => d.classList.remove('open'));
+});
+
+function selectOption(which, value, label) {
+  if (which === 'time' && dateInput && isSlotTaken(dateInput.value, value)) return;
+  document.getElementById(which + 'Value').value = value;
+  document.getElementById(which + 'Label').textContent = label;
+  document.getElementById(which + 'Trigger').classList.remove('placeholder');
+  document.querySelectorAll(`#${which}Options .cs-option`).forEach(o =>
+    o.classList.toggle('cs-selected', o.dataset.value === value));
+  document.getElementById(which + 'Dropdown').classList.remove('open');
+  if (which === 'time') document.getElementById('timeUnavailableMsg').style.display = 'none';
+}
+
+// ── REFRESH TIME SLOTS ──
+function refreshTimeOptions() {
+  const date = dateInput ? dateInput.value : '';
+  document.querySelectorAll('#timeOptions .cs-option').forEach(opt => {
+    const val   = opt.dataset.value;
+    const taken = date && isSlotTaken(date, val);
+    opt.classList.toggle('cs-taken', taken);
+    // clear and rebuild content
+    opt.innerHTML = '';
+    opt.appendChild(document.createTextNode(val));
+    if (taken) {
+      const badge = document.createElement('span');
+      badge.className = 'cs-taken-badge';
+      badge.textContent = 'Reserved';
+      opt.appendChild(badge);
+      opt.onclick = null;
+      opt.style.cursor = 'default';
+    } else {
+      opt.onclick = () => selectOption('time', val, val);
+      opt.style.cursor = 'pointer';
+    }
+  });
+  // clear selection if taken
+  const cur = document.getElementById('timeValue').value;
+  if (cur && date && isSlotTaken(date, cur)) {
+    document.getElementById('timeValue').value = '';
+    document.getElementById('timeLabel').textContent = 'Select a time';
+    document.getElementById('timeTrigger').classList.add('placeholder');
+    document.getElementById('timeUnavailableMsg').style.display = 'block';
+    document.querySelectorAll('#timeOptions .cs-option').forEach(o => o.classList.remove('cs-selected'));
+  }
+}
+
+// Init click handlers
+document.querySelectorAll('#timeOptions .cs-option').forEach(opt =>
+  opt.onclick = () => selectOption('time', opt.dataset.value, opt.dataset.value));
+document.querySelectorAll('#playersOptions .cs-option').forEach(opt =>
+  opt.onclick = () => selectOption('players', opt.dataset.value, opt.dataset.value));
+document.getElementById('timeTrigger').classList.add('placeholder');
+document.getElementById('playersTrigger').classList.add('placeholder');
+
+// ── FORM SUBMIT ──
+async function handleSubmit(e) {
+  e.preventDefault();
+  const data    = new FormData(e.target);
+  const name    = `${data.get('firstName')} ${data.get('lastName')}`;
+  const email   = data.get('email');
+  const phone   = data.get('phone') || 'Not provided';
+  const date    = data.get('date');
+  const time    = data.get('time');
+  const players = data.get('players');
+  const msg     = data.get('message') || 'None';
+
+  if (!time) { document.getElementById('timeUnavailableMsg').style.display = 'block'; return; }
+  if (!date) { return; }
+
+  // reload from DB one more time to catch race conditions
+  await loadAllBookings();
+  if (isSlotTaken(date, time)) {
+    document.getElementById('timeUnavailableMsg').style.display = 'block';
+    refreshTimeOptions();
+    return;
+  }
+
+  // show sending state
+  e.target.style.display = 'none';
+  const fs = document.getElementById('formSuccess');
+  fs.style.display = 'block';
+  document.getElementById('successSending').style.display = 'block';
+  document.getElementById('successDone').style.display = 'none';
+  document.getElementById('successError').style.display = 'none';
+
+  try {
+    // save to Supabase
+    await saveBooking({ date, time, name, email, phone, players, notes: msg });
+
+    // send mailto
+    const subject = encodeURIComponent(`Booking Request — Dead on Court — ${name}`);
+    const body = encodeURIComponent(
+`New Booking Request — Dead on Court
+=====================================
+Name:     ${name}
+Email:    ${email}
+Phone:    ${phone}
+-------------------------------------
+Date:     ${date}
+Time:     ${time}
+Players:  ${players}
+-------------------------------------
+Notes:
+${msg}
+`);
+    window.location.href = `mailto:cutmga498@gmail.com?subject=${subject}&body=${body}`;
+
+    setTimeout(() => {
+      document.getElementById('successSending').style.display = 'none';
+      document.getElementById('successDone').style.display = 'block';
+    }, 1500);
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('successSending').style.display = 'none';
+    document.getElementById('successError').style.display = 'block';
+  }
+}
+
+function resetForm() {
+  document.getElementById('bookingForm').style.display = 'block';
+  document.getElementById('formSuccess').style.display = 'none';
+}
+
+// ── ADMIN ──
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+    document.getElementById('adminLogin').style.display = 'flex';
+    setTimeout(() => document.getElementById('adminPassInput').focus(), 100);
+  }
+});
+document.getElementById('adminPassInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkAdminPass();
+});
+
+function checkAdminPass() {
+  if (document.getElementById('adminPassInput').value === ADMIN_PASSWORD) {
+    document.getElementById('adminLogin').style.display = 'none';
+    document.getElementById('adminPassInput').value = '';
+    document.getElementById('adminPassError').style.display = 'none';
+    openAdminPanel();
+  } else {
+    document.getElementById('adminPassError').style.display = 'block';
+    document.getElementById('adminPassInput').value = '';
+  }
+}
+
+async function openAdminPanel() {
+  await loadAllBookings();
+  renderAdminSlots();
+  document.getElementById('adminPanel').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAdmin() {
+  document.getElementById('adminPanel').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function renderAdminSlots() {
+  const container = document.getElementById('adminSlotList');
+  const dates = Object.keys(bookedCache).sort();
+  if (dates.length === 0) {
+    container.innerHTML = `<p style="color:var(--dim);font-style:italic">No bookings yet.</p>`;
+    return;
+  }
+  container.innerHTML = dates.map(date => `
+    <div style="margin-bottom:28px">
+      <div style="font-family:'Special Elite',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:12px">${date}</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${bookedCache[date].map(time => `
+          <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);padding:14px 18px">
+            <div>
+              <span style="font-family:'Crimson Text',serif;font-size:17px;color:var(--cream)">${time}</span>
+              <span style="margin-left:12px;font-family:'Special Elite',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red)">Reserved</span>
+            </div>
+            <button onclick="unreserveSlot('${date}','${time}')"
+              style="background:none;border:1px solid rgba(240,230,204,0.2);color:var(--dim);font-family:'Special Elite',monospace;font-size:9px;letter-spacing:2px;padding:7px 16px;cursor:pointer;text-transform:uppercase"
+              onmouseover="this.style.borderColor='var(--red-hot)';this.style.color='var(--cream)'"
+              onmouseout="this.style.borderColor='rgba(240,230,204,0.2)';this.style.color='var(--dim)'">
+              Unreserve
+            </button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+async function unreserveSlot(date, time) {
+  await deleteBooking(date, time);
+  renderAdminSlots();
+  refreshTimeOptions();
+}
+
+async function clearAllSlots() {
+  if (confirm('Clear ALL bookings? This cannot be undone.')) {
+    await deleteAllBookings();
+    renderAdminSlots();
+    refreshTimeOptions();
+  }
+}
+
+// ── BOOT ──
+// Load Supabase JS then fetch bookings
+(function loadSupabase() {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+  s.onload = () => loadAllBookings();
+  s.onerror = () => console.warn('Supabase failed to load — running offline');
+  document.head.appendChild(s);
+})();
+</script>
+
+</body>
+</html>
