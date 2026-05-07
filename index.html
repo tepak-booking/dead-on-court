@@ -667,7 +667,7 @@ footer {
   background: #1e1a12;
   border: 1px solid rgba(240,230,204,0.2);
   border-top: none;
-  z-index: 50;
+  z-index: 200;
   max-height: 260px;
   overflow-y: auto;
 }
@@ -1006,9 +1006,19 @@ const SUPABASE_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const ADMIN_PASSWORD  = 'doc2025';
 // ═══════════════════════════════════════════════════
 
-// Init Supabase client
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON);
+// Init Supabase client — deferred until SDK loads
+let db = null;
+
+function initSupabase() {
+  try {
+    if (SUPABASE_URL === 'YOUR_SUPABASE_URL') return; // not configured yet
+    const { createClient } = supabase;
+    db = createClient(SUPABASE_URL, SUPABASE_ANON);
+    loadAllBookings();
+  } catch(e) {
+    console.warn('Supabase init failed:', e);
+  }
+}
 
 // In-memory cache of taken slots { "2025-06-01": ["10:00 AM", "02:00 PM"] }
 let bookedCache = {};
@@ -1029,6 +1039,7 @@ if (dateInput) {
 
 // ── SUPABASE HELPERS ──
 async function loadAllBookings() {
+  if (!db) return;
   const { data, error } = await db.from('bookings').select('date, time');
   if (error) { console.error('Load error:', error); return; }
   bookedCache = {};
@@ -1040,14 +1051,15 @@ async function loadAllBookings() {
 }
 
 async function saveBooking(booking) {
+  if (!db) throw new Error('No database connection');
   const { error } = await db.from('bookings').insert([booking]);
   if (error) throw error;
-  // update local cache
   if (!bookedCache[booking.date]) bookedCache[booking.date] = [];
   bookedCache[booking.date].push(booking.time);
 }
 
 async function deleteBooking(date, time) {
+  if (!db) return;
   const { error } = await db.from('bookings').delete()
     .eq('date', date).eq('time', time);
   if (error) throw error;
@@ -1058,6 +1070,7 @@ async function deleteBooking(date, time) {
 }
 
 async function deleteAllBookings() {
+  if (!db) return;
   const { error } = await db.from('bookings').delete().neq('id', 0);
   if (error) throw error;
   bookedCache = {};
@@ -1205,7 +1218,7 @@ function resetForm() {
 
 // ── ADMIN ──
 document.addEventListener('keydown', e => {
-  if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+  if (e.ctrlKey && e.shiftKey && e.key === 'D') {
     document.getElementById('adminLogin').style.display = 'flex';
     setTimeout(() => document.getElementById('adminPassInput').focus(), 100);
   }
@@ -1283,12 +1296,11 @@ async function clearAllSlots() {
 }
 
 // ── BOOT ──
-// Load Supabase JS then fetch bookings
-(function loadSupabase() {
+(function loadSupabaseSDK() {
   const s = document.createElement('script');
   s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
-  s.onload = () => loadAllBookings();
-  s.onerror = () => console.warn('Supabase failed to load — running offline');
+  s.onload = () => initSupabase();
+  s.onerror = () => console.warn('Supabase SDK failed to load — running offline');
   document.head.appendChild(s);
 })();
 </script>
