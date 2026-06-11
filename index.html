@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>The Hidden Foul</title>
+<title>Dead on Court — Murder Mystery Experience</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Special+Elite&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
@@ -710,6 +710,99 @@ footer {
   border: 1px solid rgba(155,32,32,0.3);
 }
 
+/* ── SLOT GRID ── */
+.slot-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+
+.slot-day {
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 0;
+  overflow: hidden;
+}
+
+.slot-day-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(155,32,32,0.08);
+}
+
+.slot-day-date {
+  font-family: 'Special Elite', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 4px;
+}
+
+.slot-day-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-style: italic;
+  color: var(--cream);
+}
+
+.slot-list {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.slot-btn {
+  width: 100%;
+  padding: 14px 20px;
+  background: rgba(240,230,204,0.05);
+  border: 1px solid rgba(240,230,204,0.15);
+  color: var(--cream);
+  font-family: 'Special Elite', monospace;
+  font-size: 13px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.2s, border-color 0.2s;
+  position: relative;
+}
+
+.slot-btn:hover:not(.slot-btn-taken) {
+  background: rgba(155,32,32,0.15);
+  border-color: var(--red);
+}
+
+.slot-btn.slot-btn-selected {
+  background: rgba(155,32,32,0.25);
+  border-color: var(--red-hot);
+  color: var(--cream);
+}
+
+.slot-btn.slot-btn-taken {
+  opacity: 0.45;
+  cursor: default;
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.slot-status {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.slot-btn-taken .slot-status { color: var(--red); }
+.slot-btn-selected .slot-status { color: var(--gold); }
+.slot-btn:not(.slot-btn-taken):not(.slot-btn-selected) .slot-status { color: var(--dim); }
+
+@media (max-width: 768px) {
+  .slot-grid { grid-template-columns: 1fr; }
+}
+
 /* ── SCROLL ANIMATIONS ── */
 .reveal {
   opacity: 1;
@@ -747,7 +840,7 @@ footer {
 
 <!-- ── NAV ── -->
 <nav>
-  <div class="nav-logo"> The Hidden <span></span> Foul</div>
+  <div class="nav-logo">Dead <span>on</span> Court</div>
   <ul class="nav-links">
     <li><a href="#about">The Case</a></li>
     <li><a href="#details">Details</a></li>
@@ -759,7 +852,7 @@ footer {
 <section class="hero" style="max-width:100%;padding-left:48px;padding-right:48px">
   <div class="hero-lines"></div>
   <div class="hero-eyebrow">A Collaborative Murder Mystery</div>
-  <h1>The Hidden<em>Foul</em></h1>
+  <h1>Dead<em>on Court</em></h1>
   <p class="hero-sub">A student is dead. The evidence is scattered. The truth is buried — and someone in this room knows exactly where.</p>
   <div class="hero-divider"></div>
   <div class="hero-meta">
@@ -853,10 +946,26 @@ footer {
   <div class="form-header reveal">
     <div class="section-label" style="justify-content:center">Reserve</div>
     <h2>Book Your<br><em>Investigation</em></h2>
-    <p>Fill in the details below and we'll confirm your session within 24 hours.</p>
+    <p>Select an available slot below and fill in your details.</p>
   </div>
 
   <form id="bookingForm" class="reveal" onsubmit="handleSubmit(event)">
+
+    <!-- SLOT PICKER -->
+    <div class="form-group" style="margin-bottom:40px">
+      <input type="hidden" name="date" id="dateValue">
+      <input type="hidden" name="time" id="timeValue">
+
+      <div class="slot-grid" id="slotGrid">
+        <!-- rendered by JS -->
+      </div>
+      <div class="time-unavailable-msg" id="timeUnavailableMsg">This slot is already taken. Please choose another.</div>
+      <div id="slotSelectedMsg" style="display:none;margin-top:12px;font-family:'Special Elite',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold)">
+        ✓ <span id="slotSelectedText"></span>
+      </div>
+    </div>
+
+    <hr class="form-divider">
 
     <div class="form-row">
       <div class="form-group">
@@ -880,39 +989,9 @@ footer {
       <input type="tel" class="form-control" name="phone" placeholder="+357 99 000 000">
     </div>
 
-    <hr class="form-divider">
-
-    <div class="form-row">
-      <div class="form-group">
-        <label>Preferred Date <span>*</span></label>
-        <input type="date" class="form-control" name="date" id="dateInput" required>
-      </div>
-      <div class="form-group">
-        <label>Preferred Time <span>*</span></label>
-        <!-- hidden real input for form submission -->
-        <input type="hidden" name="time" id="timeValue" required>
-        <div class="custom-select" id="timeDropdown">
-          <div class="cs-trigger" id="timeTrigger" onclick="toggleDropdown('time')">
-            <span id="timeLabel">Select a time</span>
-            <span class="cs-arrow">▾</span>
-          </div>
-          <div class="cs-options" id="timeOptions">
-            <div class="cs-option" data-value="10:00 AM">10:00 AM</div>
-            <div class="cs-option" data-value="12:00 PM">12:00 PM</div>
-            <div class="cs-option" data-value="02:00 PM">02:00 PM</div>
-            <div class="cs-option" data-value="04:00 PM">04:00 PM</div>
-            <div class="cs-option" data-value="06:00 PM">06:00 PM</div>
-            <div class="cs-option" data-value="08:00 PM">08:00 PM</div>
-          </div>
-        </div>
-        <div class="time-unavailable-msg" id="timeUnavailableMsg">This slot is already taken. Please choose another time.</div>
-      </div>
-    </div>
-
     <div class="form-group">
       <label>Number of Players <span>*</span></label>
-      <!-- hidden real input for form submission -->
-      <input type="hidden" name="players" id="playersValue" required>
+      <input type="hidden" name="players" id="playersValue">
       <div class="custom-select" id="playersDropdown">
         <div class="cs-trigger" id="playersTrigger" onclick="toggleDropdown('players')">
           <span id="playersLabel">Select group size</span>
@@ -998,29 +1077,20 @@ footer {
 </footer>
 
 <script>
-// ═══════════════════════════════════════════════════
-// ── CONFIG — fill these in after Supabase setup ──
-// ═══════════════════════════════════════════════════
-const SUPABASE_URL    = 'https://pktfleezdpyiuwjyxuaq.supabase.co';
-const SUPABASE_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBrdGZsZWV6ZHB5aXV3anl4dWFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMDA4MzksImV4cCI6MjA5MzY3NjgzOX0.xIDEdFkRxqq-gjyxhqjjVcrjiJu4Ldbi9e-ob82CR90';
-const ADMIN_PASSWORD  = 'doc2025';
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+const SUPABASE_URL   = 'https://pktfleezdpyiuwjyxuaq.supabase.co';
+const SUPABASE_ANON  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBrdGZsZWV6ZHB5aXV3anl4dWFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxMDA4MzksImV4cCI6MjA5MzY3NjgzOX0.xIDEdFkRxqq-gjyxhqjjVcrjiJu4Ldbi9e-ob82CR90';
+const ADMIN_PASSWORD = 'doc2025';
+// ═══════════════════════════════════════════
 
-// Init Supabase client — deferred until SDK loads
+// ── SESSION CONFIG ── edit dates/times here
+const SESSION_DAYS = [
+  { date: '2026-06-20', label: 'Saturday', display: '20 / 6 / 26' },
+  { date: '2026-06-21', label: 'Sunday',   display: '21 / 6 / 26' },
+];
+const SESSION_TIMES = ['10:00 AM', '12:00 PM', '02:00 PM'];
+
 let db = null;
-
-function initSupabase() {
-  try {
-    if (SUPABASE_URL === 'YOUR_SUPABASE_URL') return; // not configured yet
-    const { createClient } = supabase;
-    db = createClient(SUPABASE_URL, SUPABASE_ANON);
-    loadAllBookings();
-  } catch(e) {
-    console.warn('Supabase init failed:', e);
-  }
-}
-
-// In-memory cache of taken slots { "2025-06-01": ["10:00 AM", "02:00 PM"] }
 let bookedCache = {};
 
 // ── SCROLL REVEAL ──
@@ -1030,28 +1100,66 @@ document.querySelectorAll('.reveal').forEach(el => {
   }, { threshold: 0.1 }).observe(el);
 });
 
-// ── MIN DATE ──
-const dateInput = document.getElementById('dateInput');
-if (dateInput) {
-  dateInput.min = new Date().toISOString().split('T')[0];
-  dateInput.addEventListener('change', () => refreshTimeOptions());
+// ── SLOT GRID ──
+function renderSlotGrid() {
+  const grid = document.getElementById('slotGrid');
+  if (!grid) return;
+  const selDate = document.getElementById('dateValue').value;
+  const selTime = document.getElementById('timeValue').value;
+  grid.innerHTML = SESSION_DAYS.map(day => `
+    <div class="slot-day">
+      <div class="slot-day-header">
+        <div class="slot-day-date">${day.display}</div>
+        <div class="slot-day-name">${day.label}</div>
+      </div>
+      <div class="slot-list">
+        ${SESSION_TIMES.map(time => {
+          const taken    = isSlotTaken(day.date, time);
+          const selected = selDate === day.date && selTime === time;
+          const cls      = taken ? 'slot-btn-taken' : selected ? 'slot-btn-selected' : '';
+          const status   = taken ? 'Reserved' : selected ? 'Selected ✓' : 'Available';
+          return `<button type="button" class="slot-btn ${cls}"
+            ${taken ? 'disabled' : `onclick="selectSlot('${day.date}','${time}')"`}>
+            <span>${time}</span>
+            <span class="slot-status">${status}</span>
+          </button>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
 }
 
-// ── SUPABASE HELPERS ──
+function selectSlot(date, time) {
+  if (isSlotTaken(date, time)) return;
+  document.getElementById('dateValue').value = date;
+  document.getElementById('timeValue').value = time;
+  document.getElementById('timeUnavailableMsg').style.display = 'none';
+  const day = SESSION_DAYS.find(d => d.date === date);
+  document.getElementById('slotSelectedText').textContent =
+    `${day.label} ${day.display} — ${time}`;
+  document.getElementById('slotSelectedMsg').style.display = 'block';
+  renderSlotGrid();
+}
+
+// ── SUPABASE ──
+function isSlotTaken(date, time) {
+  return bookedCache[date] && bookedCache[date].includes(time);
+}
+
 async function loadAllBookings() {
   if (!db) return;
   const { data, error } = await db.from('bookings').select('date, time');
-  if (error) { console.error('Load error:', error); return; }
+  if (error) { console.error(error); return; }
   bookedCache = {};
   data.forEach(({ date, time }) => {
     if (!bookedCache[date]) bookedCache[date] = [];
     bookedCache[date].push(time);
   });
-  refreshTimeOptions();
+  renderSlotGrid();
 }
 
 async function saveBooking(booking) {
-  if (!db) throw new Error('No database connection');
+  if (!db) throw new Error('No DB');
   const { error } = await db.from('bookings').insert([booking]);
   if (error) throw error;
   if (!bookedCache[booking.date]) bookedCache[booking.date] = [];
@@ -1060,12 +1168,11 @@ async function saveBooking(booking) {
 
 async function deleteBooking(date, time) {
   if (!db) return;
-  const { error } = await db.from('bookings').delete()
-    .eq('date', date).eq('time', time);
+  const { error } = await db.from('bookings').delete().eq('date', date).eq('time', time);
   if (error) throw error;
   if (bookedCache[date]) {
     bookedCache[date] = bookedCache[date].filter(t => t !== time);
-    if (bookedCache[date].length === 0) delete bookedCache[date];
+    if (!bookedCache[date].length) delete bookedCache[date];
   }
 }
 
@@ -1076,11 +1183,7 @@ async function deleteAllBookings() {
   bookedCache = {};
 }
 
-function isSlotTaken(date, time) {
-  return bookedCache[date] && bookedCache[date].includes(time);
-}
-
-// ── CUSTOM DROPDOWN ──
+// ── PLAYERS DROPDOWN ──
 function toggleDropdown(which) {
   const dd = document.getElementById(which + 'Dropdown');
   if (!dd) return;
@@ -1095,55 +1198,16 @@ document.addEventListener('click', e => {
 });
 
 function selectOption(which, value, label) {
-  if (which === 'time' && dateInput && isSlotTaken(dateInput.value, value)) return;
   document.getElementById(which + 'Value').value = value;
   document.getElementById(which + 'Label').textContent = label;
   document.getElementById(which + 'Trigger').classList.remove('placeholder');
   document.querySelectorAll(`#${which}Options .cs-option`).forEach(o =>
     o.classList.toggle('cs-selected', o.dataset.value === value));
   document.getElementById(which + 'Dropdown').classList.remove('open');
-  if (which === 'time') document.getElementById('timeUnavailableMsg').style.display = 'none';
 }
 
-// ── REFRESH TIME SLOTS ──
-function refreshTimeOptions() {
-  const date = dateInput ? dateInput.value : '';
-  document.querySelectorAll('#timeOptions .cs-option').forEach(opt => {
-    const val   = opt.dataset.value;
-    const taken = date && isSlotTaken(date, val);
-    opt.classList.toggle('cs-taken', taken);
-    // clear and rebuild content
-    opt.innerHTML = '';
-    opt.appendChild(document.createTextNode(val));
-    if (taken) {
-      const badge = document.createElement('span');
-      badge.className = 'cs-taken-badge';
-      badge.textContent = 'Reserved';
-      opt.appendChild(badge);
-      opt.onclick = null;
-      opt.style.cursor = 'default';
-    } else {
-      opt.onclick = () => selectOption('time', val, val);
-      opt.style.cursor = 'pointer';
-    }
-  });
-  // clear selection if taken
-  const cur = document.getElementById('timeValue').value;
-  if (cur && date && isSlotTaken(date, cur)) {
-    document.getElementById('timeValue').value = '';
-    document.getElementById('timeLabel').textContent = 'Select a time';
-    document.getElementById('timeTrigger').classList.add('placeholder');
-    document.getElementById('timeUnavailableMsg').style.display = 'block';
-    document.querySelectorAll('#timeOptions .cs-option').forEach(o => o.classList.remove('cs-selected'));
-  }
-}
-
-// Init click handlers
-document.querySelectorAll('#timeOptions .cs-option').forEach(opt =>
-  opt.onclick = () => selectOption('time', opt.dataset.value, opt.dataset.value));
 document.querySelectorAll('#playersOptions .cs-option').forEach(opt =>
   opt.onclick = () => selectOption('players', opt.dataset.value, opt.dataset.value));
-document.getElementById('timeTrigger').classList.add('placeholder');
 document.getElementById('playersTrigger').classList.add('placeholder');
 
 // ── FORM SUBMIT ──
@@ -1158,18 +1222,22 @@ async function handleSubmit(e) {
   const players = data.get('players');
   const msg     = data.get('message') || 'None';
 
-  if (!time) { document.getElementById('timeUnavailableMsg').style.display = 'block'; return; }
-  if (!date) { return; }
-
-  // reload from DB one more time to catch race conditions
-  await loadAllBookings();
-  if (isSlotTaken(date, time)) {
-    document.getElementById('timeUnavailableMsg').style.display = 'block';
-    refreshTimeOptions();
+  if (!date || !time) {
+    const m = document.getElementById('timeUnavailableMsg');
+    m.textContent = 'Please select a session slot first.';
+    m.style.display = 'block';
     return;
   }
 
-  // show sending state
+  await loadAllBookings();
+  if (isSlotTaken(date, time)) {
+    const m = document.getElementById('timeUnavailableMsg');
+    m.textContent = 'This slot was just taken. Please choose another.';
+    m.style.display = 'block';
+    renderSlotGrid();
+    return;
+  }
+
   e.target.style.display = 'none';
   const fs = document.getElementById('formSuccess');
   fs.style.display = 'block';
@@ -1178,19 +1246,17 @@ async function handleSubmit(e) {
   document.getElementById('successError').style.display = 'none';
 
   try {
-    // save to Supabase
     await saveBooking({ date, time, name, email, phone, players, notes: msg });
-
-    // send mailto
+    const day     = SESSION_DAYS.find(d => d.date === date);
     const subject = encodeURIComponent(`Booking Request — Dead on Court — ${name}`);
-    const body = encodeURIComponent(
+    const body    = encodeURIComponent(
 `New Booking Request — Dead on Court
 =====================================
 Name:     ${name}
 Email:    ${email}
 Phone:    ${phone}
 -------------------------------------
-Date:     ${date}
+Date:     ${day ? day.label + ' ' + day.display : date}
 Time:     ${time}
 Players:  ${players}
 -------------------------------------
@@ -1198,12 +1264,10 @@ Notes:
 ${msg}
 `);
     window.location.href = `mailto:cutmga498@gmail.com?subject=${subject}&body=${body}`;
-
     setTimeout(() => {
       document.getElementById('successSending').style.display = 'none';
       document.getElementById('successDone').style.display = 'block';
     }, 1500);
-
   } catch (err) {
     console.error(err);
     document.getElementById('successSending').style.display = 'none';
@@ -1218,7 +1282,7 @@ function resetForm() {
 
 // ── ADMIN ──
 document.addEventListener('keydown', e => {
-  if (e.ctrlKey && e.shiftKey && e.key === 'X') {
+  if (e.ctrlKey && e.shiftKey && e.key === 'D') {
     document.getElementById('adminLogin').style.display = 'flex';
     setTimeout(() => document.getElementById('adminPassInput').focus(), 100);
   }
@@ -1254,13 +1318,15 @@ function closeAdmin() {
 function renderAdminSlots() {
   const container = document.getElementById('adminSlotList');
   const dates = Object.keys(bookedCache).sort();
-  if (dates.length === 0) {
+  if (!dates.length) {
     container.innerHTML = `<p style="color:var(--dim);font-style:italic">No bookings yet.</p>`;
     return;
   }
-  container.innerHTML = dates.map(date => `
-    <div style="margin-bottom:28px">
-      <div style="font-family:'Special Elite',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:12px">${date}</div>
+  container.innerHTML = dates.map(date => {
+    const day   = SESSION_DAYS.find(d => d.date === date);
+    const label = day ? `${day.label} ${day.display}` : date;
+    return `<div style="margin-bottom:28px">
+      <div style="font-family:'Special Elite',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:12px">${label}</div>
       <div style="display:flex;flex-direction:column;gap:8px">
         ${bookedCache[date].map(time => `
           <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);padding:14px 18px">
@@ -1274,36 +1340,45 @@ function renderAdminSlots() {
               onmouseout="this.style.borderColor='rgba(240,230,204,0.2)';this.style.color='var(--dim)'">
               Unreserve
             </button>
-          </div>
-        `).join('')}
+          </div>`).join('')}
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 async function unreserveSlot(date, time) {
   await deleteBooking(date, time);
   renderAdminSlots();
-  refreshTimeOptions();
+  renderSlotGrid();
 }
 
 async function clearAllSlots() {
   if (confirm('Clear ALL bookings? This cannot be undone.')) {
     await deleteAllBookings();
     renderAdminSlots();
-    refreshTimeOptions();
+    renderSlotGrid();
   }
 }
 
-// ── BOOT ──
-(function loadSupabaseSDK() {
+// ── INIT ──
+function initSupabase() {
+  try {
+    const { createClient } = supabase;
+    db = createClient(SUPABASE_URL, SUPABASE_ANON);
+    loadAllBookings();
+  } catch(e) {
+    console.warn('Supabase init failed:', e);
+    renderSlotGrid();
+  }
+}
+
+(function boot() {
   const s = document.createElement('script');
   s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
-  s.onload = () => initSupabase();
-  s.onerror = () => console.warn('Supabase SDK failed to load — running offline');
+  s.onload  = () => initSupabase();
+  s.onerror = () => { console.warn('Supabase SDK failed'); renderSlotGrid(); };
   document.head.appendChild(s);
 })();
 </script>
-
 </body>
 </html>
