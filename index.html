@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Dead on Court — Murder Mystery Experience</title>
+<title>The Hidden Foul — Murder Mystery Experience</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Special+Elite&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
@@ -1139,7 +1139,7 @@ footer {
 
 <!-- ── FOOTER ── -->
 <footer>
-  <div class="footer-logo">Dead on Court &nbsp;·&nbsp; Murder Mystery Experience</div>
+  <div class="footer-logo">The Hidden Foul &nbsp;·&nbsp; Murder Mystery Experience</div>
   <div class="footer-tagline">The case won't solve itself.</div>
 </footer>
 
@@ -1376,9 +1376,9 @@ async function handleSubmit(e) {
   try {
     await saveBooking({ date, time, tickets, name, email, phone, players, notes: msg });
     const day     = SESSION_DAYS.find(d => d.date === date);
-    const subject = encodeURIComponent(`Booking — Dead on Court — ${name}`);
+    const subject = encodeURIComponent(`Booking — The Hidden Foul — ${name}`);
     const body    = encodeURIComponent(
-`New Booking — Dead on Court
+`New Booking — The Hidden Foul
 =====================================
 Name:     ${name}
 Email:    ${email}
